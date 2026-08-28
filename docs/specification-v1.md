@@ -11,7 +11,7 @@
 | 항목 | 결정 |
 |---|---|
 | 소스 저장소 | `https://github.com/jaywapp/gyungchung-mcp` |
-| MCP 실행 주소 | 배포 후 생성되는 HTTPS 주소의 `/mcp`. GitHub 저장소 URL은 실행 주소로 사용하지 않음 |
+| MCP 실행 주소 | 배포 후 생성되는 HTTPS 주소의 `/api/mcp`. GitHub 저장소 URL은 실행 주소로 사용하지 않음 |
 | OAuth 동의 화면 | 기존 경충FC 앱의 `/oauth/consent` |
 | 연락처 상세 조회 | v1에서 허용. `member_get(includeContact: true)`로만 제공하고 감사 로그 필수 |
 | OAuth client 등록 | ChatGPT, Codex, Claude 공용 Dynamic Client Registration 사용 |
@@ -54,7 +54,7 @@ ChatGPT / Codex / Claude
           |
           | MCP Streamable HTTP + OAuth access token
           v
-POST /mcp ----------------------+
+POST /api/mcp ------------------+
                                 |
 Admin API /api/v1/admin/* ------+--> Authentication
                                      Authorization
@@ -117,9 +117,11 @@ v1은 ChatGPT, Codex, Claude를 같은 방식으로 연결하기 위해 Dynamic 
 
 | 메서드 | 경로 | 목적 |
 |---|---|---|
-| `POST` | `/mcp` | MCP Streamable HTTP 엔드포인트 |
-| `GET` | `/.well-known/oauth-protected-resource` | MCP 보호 리소스 메타데이터 |
-| `GET` | `/health` | 비인증 상태 확인. 민감 정보 반환 금지 |
+| `POST` | `/api/mcp` | MCP Streamable HTTP 엔드포인트 |
+| `GET` | `/api/oauth-protected-resource` | MCP 보호 리소스 메타데이터 |
+| `GET` | `/api/health` | 비인증 상태 확인. 민감 정보 반환 금지 |
+
+Vercel rewrite 별칭(`/mcp`, `/health`)을 편의상 제공할 수 있지만, OAuth 보호 리소스 메타데이터와 클라이언트 설정은 배포 플랫폼의 예약 경로 정책에 영향받지 않는 직접 함수 URL을 사용한다.
 
 Supabase Auth는 OAuth authorization server와 JWKS를 제공한다. 경충FC 웹 앱에는 OAuth 요청의 클라이언트, 리디렉션 주소, 요청 범위를 표시하고 사용자가 승인 또는 거부할 수 있는 동의 화면이 필요하다.
 
@@ -654,7 +656,7 @@ MCP 오류는 `isError: true`로 반환하고 구조화 출력에 같은 `code`,
 ## 12. v1 완료 조건
 
 - Supabase OAuth 2.1 로그인과 동의가 동작한다.
-- ChatGPT, Codex, Claude가 동일한 `/mcp`에 연결된다.
+- ChatGPT, Codex, Claude가 동일한 `/api/mcp`에 연결된다.
 - 권한별 `tools/list` 결과가 자동으로 달라진다.
 - 11개 조회 도구가 정의된 계약과 개인정보 규칙을 지킨다.
 - 대응하는 Admin API 엔드포인트가 동일한 서비스 계층을 사용한다.

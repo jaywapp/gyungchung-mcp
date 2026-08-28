@@ -29,7 +29,7 @@ export function getConfig(): AppConfig {
 
   cachedConfig = {
     mcpServerUrl,
-    resourceMetadataUrl: new URL("/.well-known/oauth-protected-resource", mcpServerUrl),
+    resourceMetadataUrl: new URL("/api/oauth-protected-resource", mcpServerUrl),
     supabaseUrl,
     supabasePublishableKey: required("SUPABASE_PUBLISHABLE_KEY"),
     supabaseIssuer: `${supabaseBase}/auth/v1`,

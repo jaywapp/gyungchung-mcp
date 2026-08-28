@@ -21,7 +21,7 @@
 - [Admin API OpenAPI 3.1 계약](openapi/admin-api-v1.yaml)
 - [MCP 도구 JSON Schema](spec/mcp-tools-v1.json)
 
-GitHub 저장소 URL은 소스 배포 원본이며 MCP 실행 주소가 아닙니다. ChatGPT, Codex, Claude에는 배포 후 생성되는 HTTPS `/mcp` URL을 연결합니다.
+GitHub 저장소 URL은 소스 배포 원본이며 MCP 실행 주소가 아닙니다. ChatGPT, Codex, Claude에는 배포 후 생성되는 HTTPS `/api/mcp` URL을 연결합니다.
 
 ## 로컬 검증
 
@@ -36,18 +36,18 @@ npm run check
 
 ## 공개 엔드포인트
 
-- `GET /health`: 서버 상태 확인
-- `/mcp`: Streamable HTTP MCP 엔드포인트
-- `GET /.well-known/oauth-protected-resource`: OAuth 보호 리소스 메타데이터
+- `GET /api/health`: 서버 상태 확인
+- `/api/mcp`: Streamable HTTP MCP 엔드포인트
+- `GET /api/oauth-protected-resource`: OAuth 보호 리소스 메타데이터
 - `GET /api/v1/admin/*`: 동일한 조회 서비스 계층을 사용하는 관리자 API
 
-`/mcp`와 관리자 API는 Supabase OAuth 2.1 액세스 토큰을 요구합니다. 로그인한 사용자의 현재 프로필과 운영 권한을 데이터베이스에서 매 요청마다 확인하며, 권한이 없는 도구는 도구 목록에 노출하지 않습니다.
+`/api/mcp`와 관리자 API는 Supabase OAuth 2.1 액세스 토큰을 요구합니다. 로그인한 사용자의 현재 프로필과 운영 권한을 데이터베이스에서 매 요청마다 확인하며, 권한이 없는 도구는 도구 목록에 노출하지 않습니다. Vercel rewrite 별칭(`/mcp`, `/health`)도 제공하지만 OAuth 클라이언트 등록에는 직접 함수 URL을 사용합니다.
 
 ## 배포
 
 Vercel 프로젝트에 다음 환경변수를 등록합니다.
 
-- `MCP_SERVER_URL`: 배포된 HTTPS `/mcp` URL
+- `MCP_SERVER_URL`: 배포된 HTTPS `/api/mcp` URL
 - `SUPABASE_URL`: 경충FC Supabase 프로젝트 URL
 - `SUPABASE_PUBLISHABLE_KEY`: 공개 클라이언트용 publishable key
 
