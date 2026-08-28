@@ -1,0 +1,24 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    { "source": "/mcp", "destination": "/api/mcp" },
+    { "source": "/health", "destination": "/api/health" },
+    { "source": "/.well-known/oauth-protected-resource", "destination": "/api/oauth-protected-resource" },
+    { "source": "/api/v1/admin/context", "destination": "/api/admin?path=context" },
+    { "source": "/api/v1/admin/members/:memberId", "destination": "/api/admin?path=members/:memberId" },
+    { "source": "/api/v1/admin/members", "destination": "/api/admin?path=members" },
+    { "source": "/api/v1/admin/fees/overview", "destination": "/api/admin?path=fees/overview" },
+    { "source": "/api/v1/admin/fees", "destination": "/api/admin?path=fees" },
+    { "source": "/api/v1/admin/notices", "destination": "/api/admin?path=notices" },
+    { "source": "/api/v1/admin/events/:eventId/operations", "destination": "/api/admin?path=events/:eventId/operations" },
+    { "source": "/api/v1/admin/events", "destination": "/api/admin?path=events" },
+    { "source": "/api/v1/admin/feedback", "destination": "/api/admin?path=feedback" },
+    { "source": "/api/v1/admin/participation/forms/:formId/results", "destination": "/api/admin?path=participation/forms/:formId/results" },
+    { "source": "/api/v1/admin/participation/forms", "destination": "/api/admin?path=participation/forms" }
+  ],
+  "functions": {
+    "api/*.ts": {
+      "maxDuration": 60
+    }
+  }
+}
