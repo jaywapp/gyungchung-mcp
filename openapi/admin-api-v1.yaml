@@ -1,0 +1,770 @@
+openapi: 3.1.0
+info:
+  title: Gyungchung Admin API
+  version: 1.0.0-draft
+  description: >-
+    경충FC 관리자 MCP와 일반 HTTP 클라이언트가 공유하는 조회 전용 API 계약이다.
+    모든 관리자 응답은 현재 Supabase 사용자와 데이터베이스 권한을 기준으로 승인된다.
+servers:
+  - url: https://{host}
+    description: 배포 환경
+    variables:
+      host:
+        default: gyungchung-mcp.example.com
+        description: 배포 후 확정되는 호스트
+security:
+  - bearerAuth: []
+tags:
+  - name: System
+  - name: Context
+  - name: Members
+  - name: Fees
+  - name: Notices
+  - name: Events
+  - name: Feedback
+  - name: Participation
+paths:
+  /health:
+    get:
+      tags: [System]
+      operationId: getHealth
+      summary: 서비스 상태 확인
+      security: []
+      responses:
+        "200":
+          description: 정상
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status: { const: ok }
+                additionalProperties: false
+  /api/v1/admin/context:
+    get:
+      tags: [Context]
+      operationId: getAdminContext
+      summary: 현재 운영자와 유효 권한 조회
+      responses:
+        "200":
+          description: 운영자 컨텍스트
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminContextEnvelope" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /api/v1/admin/members:
+    get:
+      tags: [Members]
+      operationId: searchMembers
+      summary: 회원 검색
+      x-required-permission: members.manage
+      parameters:
+        - $ref: "#/components/parameters/Query"
+        - name: status
+          in: query
+          schema: { $ref: "#/components/schemas/MemberStatus" }
+        - name: role
+          in: query
+          schema: { $ref: "#/components/schemas/AccountRole" }
+        - name: includeTestAccounts
+          in: query
+          description: 시스템 관리자만 true 사용 가능
+          schema: { type: boolean, default: false }
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: 회원 목록
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MemberListEnvelope" }
+        "400": { $ref: "#/components/responses/InvalidArgument" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /api/v1/admin/members/{memberId}:
+    get:
+      tags: [Members]
+      operationId: getMember
+      summary: 회원 상세 조회
+      x-required-permission: members.manage
+      parameters:
+        - $ref: "#/components/parameters/MemberId"
+        - name: includeContact
+          in: query
+          description: true이면 전화번호와 이메일을 포함하고 민감 조회 감사를 기록함
+          schema: { type: boolean, default: false }
+      responses:
+        "200":
+          description: 회원 상세
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/MemberDetailEnvelope" }
+        "400": { $ref: "#/components/responses/InvalidArgument" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /api/v1/admin/fees/overview:
+    get:
+      tags: [Fees]
+      operationId: getFeeOverview
+      summary: 회비 현황 집계
+      x-required-permission: fees.manage
+      parameters:
+        - $ref: "#/components/parameters/FromMonth"
+        - $ref: "#/components/parameters/ToMonth"
+        - name: feeType
+          in: query
+          schema: { type: string, enum: [monthly, participation, all], default: all }
+        - name: includeGuests
+          in: query
+          schema: { type: boolean, default: true }
+      responses:
+        "200":
+          description: 회비 집계
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FeeOverviewEnvelope" }
+        "400": { $ref: "#/components/responses/InvalidArgument" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /api/v1/admin/fees:
+    get:
+      tags: [Fees]
+      operationId: listFees
+      summary: 회비 항목 검색
+      x-required-permission: fees.manage
+      parameters:
+        - $ref: "#/components/parameters/Query"
+        - name: status
+          in: query
+          schema: { $ref: "#/components/schemas/FeeStatus" }
+        - name: feeType
+          in: query
+          schema: { type: string, enum: [monthly, participation, guest, all], default: all }
+        - $ref: "#/components/parameters/FromMonth"
+        - $ref: "#/components/parameters/ToMonth"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: 회비 목록
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FeeListEnvelope" }
+        "400": { $ref: "#/components/responses/InvalidArgument" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /api/v1/admin/notices:
+    get:
+      tags: [Notices]
+      operationId: listNotices
+      summary: 공지 목록 조회
+      x-required-permission: notices.manage
+      parameters:
+        - $ref: "#/components/parameters/Query"
+        - name: pinnedOnly
+          in: query
+          schema: { type: boolean, default: false }
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: 공지 목록
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/NoticeListEnvelope" }
+        "400": { $ref: "#/components/responses/InvalidArgument" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /api/v1/admin/events:
+    get:
+      tags: [Events]
+      operationId: listEvents
+      summary: 일정 검색
+      x-required-permission: events.manage
+      parameters:
+        - name: from
+          in: query
+          schema: { type: string, format: date-time }
+        - name: to
+          in: query
+          schema: { type: string, format: date-time }
+        - $ref: "#/components/parameters/Query"
+        - name: competitiveOnly
+          in: query
+          schema: { type: boolean, default: false }
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: 일정 목록
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EventListEnvelope" }
+        "400": { $ref: "#/components/responses/InvalidArgument" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /api/v1/admin/events/{eventId}/operations:
+    get:
+      tags: [Events]
+      operationId: getEventOperations
+      summary: 일정 운영 상세 조회
+      x-required-permission: events.manage
+      parameters:
+        - $ref: "#/components/parameters/EventId"
+        - name: includeAttendance
+          in: query
+          schema: { type: boolean, default: true }
+        - name: includeGuests
+          in: query
+          schema: { type: boolean, default: true }
+        - name: includeTeams
+          in: query
+          schema: { type: boolean, default: true }
+        - name: includeMatches
+          in: query
+          schema: { type: boolean, default: true }
+      responses:
+        "200":
+          description: 일정 운영 상세
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/EventOperationsEnvelope" }
+        "400": { $ref: "#/components/responses/InvalidArgument" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /api/v1/admin/feedback:
+    get:
+      tags: [Feedback]
+      operationId: listFeedback
+      summary: 운영 의견 검색
+      x-required-permission: feedback.manage
+      parameters:
+        - $ref: "#/components/parameters/Query"
+        - name: category
+          in: query
+          schema: { $ref: "#/components/schemas/FeedbackCategory" }
+        - name: status
+          in: query
+          schema: { $ref: "#/components/schemas/FeedbackStatus" }
+        - name: githubPublicationStatus
+          in: query
+          schema: { $ref: "#/components/schemas/GithubPublicationStatus" }
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: 운영 의견 목록
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/FeedbackListEnvelope" }
+        "400": { $ref: "#/components/responses/InvalidArgument" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /api/v1/admin/participation/forms:
+    get:
+      tags: [Participation]
+      operationId: listParticipationForms
+      summary: 관리 가능한 참여 폼 조회
+      x-required-permission: dynamic-by-kind
+      parameters:
+        - name: kind
+          in: query
+          schema: { $ref: "#/components/schemas/ParticipationKind" }
+        - name: status
+          in: query
+          schema: { $ref: "#/components/schemas/ParticipationStatus" }
+        - $ref: "#/components/parameters/Query"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Cursor"
+      responses:
+        "200":
+          description: 참여 폼 목록
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ParticipationFormListEnvelope" }
+        "400": { $ref: "#/components/responses/InvalidArgument" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /api/v1/admin/participation/forms/{formId}/results:
+    get:
+      tags: [Participation]
+      operationId: getParticipationResults
+      summary: 참여 폼 집계 결과 조회
+      x-required-permission: dynamic-by-form-kind
+      parameters:
+        - $ref: "#/components/parameters/FormId"
+      responses:
+        "200":
+          description: 집계 결과
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ParticipationResultsEnvelope" }
+        "400": { $ref: "#/components/responses/InvalidArgument" }
+        "401": { $ref: "#/components/responses/Unauthenticated" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Supabase Auth OAuth 2.1 access token
+  parameters:
+    Query:
+      name: query
+      in: query
+      schema: { type: string, minLength: 1, maxLength: 100 }
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100, default: 25 }
+    Cursor:
+      name: cursor
+      in: query
+      schema: { type: string, minLength: 1, maxLength: 500 }
+    FromMonth:
+      name: fromMonth
+      in: query
+      schema: { type: string, pattern: "^[0-9]{4}-(0[1-9]|1[0-2])$" }
+    ToMonth:
+      name: toMonth
+      in: query
+      schema: { type: string, pattern: "^[0-9]{4}-(0[1-9]|1[0-2])$" }
+    MemberId:
+      name: memberId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    EventId:
+      name: eventId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    FormId:
+      name: formId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+  responses:
+    InvalidArgument:
+      description: 잘못된 입력
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+    Unauthenticated:
+      description: 인증 필요
+      headers:
+        WWW-Authenticate:
+          schema: { type: string }
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+    Forbidden:
+      description: 권한 없음
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+    NotFound:
+      description: 대상을 찾을 수 없음
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ErrorEnvelope" }
+  schemas:
+    AccountRole: { type: string, enum: [member, manager] }
+    OfficerTitle: { type: [string, "null"], enum: [president, vice_president, treasurer, null] }
+    MemberStatus: { type: string, enum: [active, inactive, pending] }
+    FeeStatus: { type: string, enum: [paid, unpaid, exempt] }
+    FeedbackCategory: { type: string, enum: [operation, system, facility, finance, safety, other] }
+    FeedbackStatus: { type: string, enum: [received, reviewing, resolved, closed] }
+    GithubPublicationStatus: { type: string, enum: [not_requested, pending, published, failed] }
+    ParticipationKind: { type: string, enum: [election, poll, survey] }
+    ParticipationStatus: { type: string, enum: [draft, open, closed, archived] }
+    ApiMeta:
+      type: object
+      required: [requestId, generatedAt]
+      properties:
+        requestId: { type: string }
+        generatedAt: { type: string, format: date-time }
+      additionalProperties: false
+    Page:
+      type: object
+      required: [limit, nextCursor, hasMore]
+      properties:
+        limit: { type: integer, minimum: 1, maximum: 100 }
+        nextCursor: { type: [string, "null"] }
+        hasMore: { type: boolean }
+      additionalProperties: false
+    PagedMeta:
+      type: object
+      required: [requestId, generatedAt, page]
+      properties:
+        requestId: { type: string }
+        generatedAt: { type: string, format: date-time }
+        page: { $ref: "#/components/schemas/Page" }
+      additionalProperties: false
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, requestId]
+          properties:
+            code:
+              type: string
+              enum: [INVALID_ARGUMENT, UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, STALE_CONTEXT, RATE_LIMITED, INTERNAL_ERROR]
+            message: { type: string }
+            requestId: { type: string }
+          additionalProperties: false
+      additionalProperties: false
+    AdminContext:
+      type: object
+      required: [operator, permissions, availableDomains]
+      properties:
+        operator:
+          type: object
+          required: [profileId, name, role, officerTitle, isSystemAdmin]
+          properties:
+            profileId: { type: string, format: uuid }
+            name: { type: string }
+            role: { $ref: "#/components/schemas/AccountRole" }
+            officerTitle: { $ref: "#/components/schemas/OfficerTitle" }
+            isSystemAdmin: { type: boolean }
+          additionalProperties: false
+        permissions: { type: array, uniqueItems: true, items: { type: string } }
+        availableDomains:
+          type: array
+          uniqueItems: true
+          items: { type: string, enum: [members, fees, notices, events, feedback, elections, polls, surveys, permissions] }
+      additionalProperties: false
+    AdminContextEnvelope:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: "#/components/schemas/AdminContext" }
+        meta: { $ref: "#/components/schemas/ApiMeta" }
+      additionalProperties: false
+    MemberSummary:
+      type: object
+      required: [id, name, phoneLast4, role, officerTitle, isSystemAdmin, feePlan, position, jerseyNumber, joinedAt, status, hasLoginAccount]
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        phoneLast4: { type: [string, "null"], pattern: "^[0-9]{4}$" }
+        role: { $ref: "#/components/schemas/AccountRole" }
+        officerTitle: { $ref: "#/components/schemas/OfficerTitle" }
+        isSystemAdmin: { type: boolean }
+        feePlan: { type: [string, "null"], enum: [monthly, per_event, null] }
+        position: { type: [string, "null"], enum: [GK, DF, MF, FW, ANY, null] }
+        jerseyNumber: { type: [integer, "null"], minimum: 0 }
+        joinedAt: { type: string, format: date }
+        status: { $ref: "#/components/schemas/MemberStatus" }
+        hasLoginAccount: { type: boolean }
+      additionalProperties: false
+    MemberDetail:
+      type: object
+      required: [member, positionDetail, contact]
+      properties:
+        member: { $ref: "#/components/schemas/MemberSummary" }
+        positionDetail: { type: [string, "null"] }
+        contact:
+          oneOf:
+            - type: "null"
+            - type: object
+              required: [phone, email]
+              properties:
+                phone: { type: [string, "null"] }
+                email: { type: [string, "null"], format: email }
+              additionalProperties: false
+      additionalProperties: false
+    MemberListEnvelope:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { type: array, items: { $ref: "#/components/schemas/MemberSummary" } }
+        meta: { $ref: "#/components/schemas/PagedMeta" }
+      additionalProperties: false
+    MemberDetailEnvelope:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: "#/components/schemas/MemberDetail" }
+        meta: { $ref: "#/components/schemas/ApiMeta" }
+      additionalProperties: false
+    FeeBreakdown:
+      type: object
+      required: [count, amount]
+      properties:
+        count: { type: integer, minimum: 0 }
+        amount: { type: integer, minimum: 0 }
+      additionalProperties: false
+    FeeOverview:
+      type: object
+      required: [fromMonth, toMonth, paid, unpaid, exempt, unpaidPeopleCount, includesGuests]
+      properties:
+        fromMonth: { type: string, pattern: "^[0-9]{4}-(0[1-9]|1[0-2])$" }
+        toMonth: { type: string, pattern: "^[0-9]{4}-(0[1-9]|1[0-2])$" }
+        paid: { $ref: "#/components/schemas/FeeBreakdown" }
+        unpaid: { $ref: "#/components/schemas/FeeBreakdown" }
+        exempt: { $ref: "#/components/schemas/FeeBreakdown" }
+        unpaidPeopleCount: { type: integer, minimum: 0 }
+        includesGuests: { type: boolean }
+      additionalProperties: false
+    FeeOverviewEnvelope:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: "#/components/schemas/FeeOverview" }
+        meta: { $ref: "#/components/schemas/ApiMeta" }
+      additionalProperties: false
+    FeeRecord:
+      type: object
+      required: [id, subjectType, subjectId, subjectName, month, amount, feeType, eventId, status, paidAt]
+      properties:
+        id: { type: string }
+        subjectType: { type: string, enum: [member, guest] }
+        subjectId: { type: string, format: uuid }
+        subjectName: { type: string }
+        month: { type: string, format: date }
+        amount: { type: integer, minimum: 0 }
+        feeType: { type: string, enum: [monthly, participation, guest] }
+        eventId: { type: [string, "null"], format: uuid }
+        status: { $ref: "#/components/schemas/FeeStatus" }
+        paidAt: { type: [string, "null"], format: date-time }
+      additionalProperties: false
+    FeeListEnvelope:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { type: array, items: { $ref: "#/components/schemas/FeeRecord" } }
+        meta: { $ref: "#/components/schemas/PagedMeta" }
+      additionalProperties: false
+    Notice:
+      type: object
+      required: [id, title, body, isPinned, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        body: { type: string }
+        isPinned: { type: boolean }
+        createdAt: { type: string, format: date-time }
+      additionalProperties: false
+    NoticeListEnvelope:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { type: array, items: { $ref: "#/components/schemas/Notice" } }
+        meta: { $ref: "#/components/schemas/PagedMeta" }
+      additionalProperties: false
+    EventSummary:
+      type: object
+      required: [id, title, startsAt, venue, address, capacity, isCompetitive, teamMode, attendanceCounts, guestCount, hasTeams, hasMatches]
+      properties:
+        id: { type: string, format: uuid }
+        title: { type: string }
+        startsAt: { type: string, format: date-time }
+        venue: { type: string }
+        address: { type: [string, "null"] }
+        capacity: { type: [integer, "null"], minimum: 1 }
+        isCompetitive: { type: boolean }
+        teamMode: { type: [string, "null"], enum: [random, balanced, null] }
+        attendanceCounts:
+          type: object
+          required: [going, notGoing, undecided, present, late, absent]
+          properties:
+            going: { type: integer, minimum: 0 }
+            notGoing: { type: integer, minimum: 0 }
+            undecided: { type: integer, minimum: 0 }
+            present: { type: integer, minimum: 0 }
+            late: { type: integer, minimum: 0 }
+            absent: { type: integer, minimum: 0 }
+          additionalProperties: false
+        guestCount: { type: integer, minimum: 0 }
+        hasTeams: { type: boolean }
+        hasMatches: { type: boolean }
+      additionalProperties: false
+    EventListEnvelope:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { type: array, items: { $ref: "#/components/schemas/EventSummary" } }
+        meta: { $ref: "#/components/schemas/PagedMeta" }
+      additionalProperties: false
+    EventOperations:
+      type: object
+      required: [event, attendance, guests, teams, matches]
+      properties:
+        event: { $ref: "#/components/schemas/EventSummary" }
+        attendance:
+          type: [array, "null"]
+          items:
+            type: object
+            required: [memberId, memberName, rsvpStatus, checkInStatus, checkedInAt]
+            properties:
+              memberId: { type: string, format: uuid }
+              memberName: { type: string }
+              rsvpStatus: { type: string, enum: [going, not_going, undecided] }
+              checkInStatus: { type: [string, "null"], enum: [present, late, absent, null] }
+              checkedInAt: { type: [string, "null"], format: date-time }
+            additionalProperties: false
+        guests: { type: [array, "null"], items: { $ref: "#/components/schemas/EventGuest" } }
+        teams: { type: [array, "null"], items: { $ref: "#/components/schemas/EventTeam" } }
+        matches: { type: [array, "null"], items: { $ref: "#/components/schemas/EventMatch" } }
+      additionalProperties: false
+    EventGuest:
+      type: object
+      required: [guestPlayerId, name, position]
+      properties:
+        guestPlayerId: { type: string, format: uuid }
+        name: { type: string }
+        position: { type: [string, "null"], enum: [GK, DF, MF, FW, ANY, null] }
+      additionalProperties: false
+    EventTeamMember:
+      type: object
+      required: [id, profileId, guestPlayerId, name, position, goals, rating]
+      properties:
+        id: { type: string, format: uuid }
+        profileId: { type: [string, "null"], format: uuid }
+        guestPlayerId: { type: [string, "null"], format: uuid }
+        name: { type: string }
+        position: { type: [string, "null"], enum: [GK, DF, MF, FW, ANY, null] }
+        goals: { type: integer, minimum: 0 }
+        rating: { type: [number, "null"], minimum: 0 }
+      additionalProperties: false
+    EventTeam:
+      type: object
+      required: [id, teamNumber, teamName, score, generationMode, members]
+      properties:
+        id: { type: string, format: uuid }
+        teamNumber: { type: integer, minimum: 1 }
+        teamName: { type: string }
+        score: { type: [integer, "null"], minimum: 0 }
+        generationMode: { type: string, enum: [random, balanced] }
+        members: { type: array, items: { $ref: "#/components/schemas/EventTeamMember" } }
+      additionalProperties: false
+    EventMatchPlayer:
+      type: object
+      required: [id, teamId, profileId, guestPlayerId, playerName]
+      properties:
+        id: { type: string, format: uuid }
+        teamId: { type: string, format: uuid }
+        profileId: { type: [string, "null"], format: uuid }
+        guestPlayerId: { type: [string, "null"], format: uuid }
+        playerName: { type: string }
+      additionalProperties: false
+    EventMatchScorer:
+      type: object
+      required: [id, teamId, profileId, guestPlayerId, scorerName, goals]
+      properties:
+        id: { type: string, format: uuid }
+        teamId: { type: string, format: uuid }
+        profileId: { type: [string, "null"], format: uuid }
+        guestPlayerId: { type: [string, "null"], format: uuid }
+        scorerName: { type: string }
+        goals: { type: integer, minimum: 1 }
+      additionalProperties: false
+    EventMatch:
+      type: object
+      required: [id, matchNumber, teamAId, teamBId, teamAScore, teamBScore, players, scorers]
+      properties:
+        id: { type: string, format: uuid }
+        matchNumber: { type: integer, minimum: 1 }
+        teamAId: { type: string, format: uuid }
+        teamBId: { type: string, format: uuid }
+        teamAScore: { type: integer, minimum: 0 }
+        teamBScore: { type: integer, minimum: 0 }
+        players: { type: array, items: { $ref: "#/components/schemas/EventMatchPlayer" } }
+        scorers: { type: array, items: { $ref: "#/components/schemas/EventMatchScorer" } }
+      additionalProperties: false
+    EventOperationsEnvelope:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: "#/components/schemas/EventOperations" }
+        meta: { $ref: "#/components/schemas/ApiMeta" }
+      additionalProperties: false
+    Feedback:
+      type: object
+      required: [id, category, title, body, isAnonymous, authorDisplayName, status, officerResponse, githubPublicationStatus, githubIssueUrl, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        category: { $ref: "#/components/schemas/FeedbackCategory" }
+        title: { type: string }
+        body: { type: string }
+        isAnonymous: { type: boolean }
+        authorDisplayName: { type: string, description: 익명 의견이면 항상 익명 }
+        status: { $ref: "#/components/schemas/FeedbackStatus" }
+        officerResponse: { type: [string, "null"] }
+        githubPublicationStatus: { $ref: "#/components/schemas/GithubPublicationStatus" }
+        githubIssueUrl: { type: [string, "null"], format: uri }
+        createdAt: { type: string, format: date-time }
+      additionalProperties: false
+    FeedbackListEnvelope:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { type: array, items: { $ref: "#/components/schemas/Feedback" } }
+        meta: { $ref: "#/components/schemas/PagedMeta" }
+      additionalProperties: false
+    ParticipationForm:
+      type: object
+      required: [id, kind, title, description, status, startsAt, endsAt, secretBallot, showResults, responseCount]
+      properties:
+        id: { type: string, format: uuid }
+        kind: { $ref: "#/components/schemas/ParticipationKind" }
+        title: { type: string }
+        description: { type: [string, "null"] }
+        status: { $ref: "#/components/schemas/ParticipationStatus" }
+        startsAt: { type: [string, "null"], format: date-time }
+        endsAt: { type: [string, "null"], format: date-time }
+        secretBallot: { type: boolean }
+        showResults: { type: boolean }
+        responseCount: { type: integer, minimum: 0 }
+      additionalProperties: false
+    ParticipationFormListEnvelope:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { type: array, items: { $ref: "#/components/schemas/ParticipationForm" } }
+        meta: { $ref: "#/components/schemas/PagedMeta" }
+      additionalProperties: false
+    ParticipationResults:
+      type: object
+      required: [form, questions]
+      properties:
+        form: { $ref: "#/components/schemas/ParticipationForm" }
+        questions:
+          type: array
+          items:
+            type: object
+            required: [questionId, prompt, type, responseCount, average, options]
+            properties:
+              questionId: { type: string, format: uuid }
+              prompt: { type: string }
+              type: { type: string, enum: [single_choice, multiple_choice, short_text, long_text, rating, yes_no] }
+              responseCount: { type: integer, minimum: 0 }
+              average: { type: [number, "null"] }
+              options:
+                type: array
+                items:
+                  type: object
+                  required: [optionId, label, count]
+                  properties:
+                    optionId: { type: string, format: uuid }
+                    label: { type: string }
+                    count: { type: integer, minimum: 0 }
+                  additionalProperties: false
+            additionalProperties: false
+      additionalProperties: false
+    ParticipationResultsEnvelope:
+      type: object
+      required: [data, meta]
+      properties:
+        data: { $ref: "#/components/schemas/ParticipationResults" }
+        meta: { $ref: "#/components/schemas/ApiMeta" }
+      additionalProperties: false
