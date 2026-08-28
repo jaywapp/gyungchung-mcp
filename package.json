@@ -1,0 +1,29 @@
+{
+  "name": "gyungchung-admin-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22 <25"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "check": "npm run build && npm test",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/express": "2.0.0",
+    "@modelcontextprotocol/node": "2.0.0",
+    "@modelcontextprotocol/server": "2.0.0",
+    "@supabase/supabase-js": "2.112.4",
+    "express": "5.2.1",
+    "jose": "6.2.10",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@types/express": "5.0.6",
+    "@types/node": "22.20.1",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11"
+  }
+}
