@@ -16,3 +16,9 @@
 이 저장소의 기존 문서 인덱스와 생성 규칙이 있으면 그 규칙을 우선하며, 기존 파일을 덮어쓰지 않습니다.
 
 - 2026-09-09 성능·안정성: [분석](runtime-resilience-20260909-analysis.md), [설계](runtime-resilience-20260909-design.md), [작업](runtime-resilience-20260909-tasks.md)
+
+## OAuth 서버 복구
+- [분석](oauth-recovery-analysis.md)
+- [설계](oauth-recovery-design.md)
+- [작업과 결과](oauth-recovery-tasks.md)
+- [공개 경계 검증](public-oauth-boundary-20260909.md)
