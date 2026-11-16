@@ -108,12 +108,12 @@ const exposed = (service: ReturnType<typeof operator>) =>
   v2Tools.filter((tool) => shouldExposeCommandTool(service, tool)).map((tool) => tool.name);
 
 // The database applies the web's own row rules to these, so every active member may call them.
-const TABLE_TOOLS = ["rows_delete", "rows_insert", "rows_query", "rows_update", "table_describe", "tables_list"];
+const TABLE_TOOLS = ["function_call", "function_describe", "functions_list", "rows_delete", "rows_insert", "rows_query", "rows_update", "table_describe", "tables_list"];
 
 describe("shouldExposeCommandTool", () => {
   it("shows every v2 tool to a system admin next to the eleven v1 tools", () => {
     expect(v1.tools).toHaveLength(11);
-    expect(exposed(operator(true, [...ADMIN_PERMISSIONS]))).toHaveLength(14);
+    expect(exposed(operator(true, [...ADMIN_PERMISSIONS]))).toHaveLength(17);
   });
 
   it("shows only event tools to an events.manage officer", () => {

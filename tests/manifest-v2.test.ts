@@ -19,8 +19,8 @@ const byName = (name: string) => tools.find((tool) => tool.name === name)!;
 describe("MCP tool manifest v2", () => {
   it("publishes fourteen uniquely named tools", () => {
     expect(v2.version).toBe("2.0.0");
-    expect(tools).toHaveLength(14);
-    expect(new Set(tools.map((tool) => tool.name)).size).toBe(14);
+    expect(tools).toHaveLength(17);
+    expect(new Set(tools.map((tool) => tool.name)).size).toBe(17);
   });
 
   it("maps every tool to its mcp_admin_ rpc", () => {
@@ -34,7 +34,7 @@ describe("MCP tool manifest v2", () => {
   });
 
   it("assigns permissions", () => {
-    for (const name of ["tables_list", "table_describe", "rows_query", "rows_insert", "rows_update", "rows_delete"]) {
+    for (const name of ["tables_list", "table_describe", "rows_query", "rows_insert", "rows_update", "rows_delete", "functions_list", "function_describe", "function_call"]) {
       expect(byName(name).requiredPermission).toBe("member");
       expect(byName(name).description).toContain("권한은 경충FC 웹과 같다");
     }
@@ -46,7 +46,7 @@ describe("MCP tool manifest v2", () => {
   });
 
   it("classifies kinds and annotations", () => {
-    const reads = ["tables_list", "table_describe", "rows_query", "changes_list", "event_game_state"];
+    const reads = ["tables_list", "table_describe", "rows_query", "changes_list", "event_game_state", "functions_list", "function_describe"];
     for (const tool of tools) {
       expect(tool.kind).toBe(reads.includes(tool.name) ? "read" : "write");
       if (tool.kind === "read") {
@@ -62,7 +62,7 @@ describe("MCP tool manifest v2", () => {
         expect(tool.annotations.openWorldHint).toBe(false);
       }
     }
-    expect(tools.filter((tool) => tool.annotations.destructiveHint === true).map((tool) => tool.name)).toEqual(["rows_delete"]);
+    expect(tools.filter((tool) => tool.annotations.destructiveHint === true).map((tool) => tool.name)).toEqual(["rows_delete", "function_call"]);
   });
 
   it("requires requestId on every write tool", () => {
@@ -75,7 +75,7 @@ describe("MCP tool manifest v2", () => {
   it("offers confirmToken on every write tool and on no read tool", () => {
     const withToken = tools.filter((tool) => "confirmToken" in tool.inputSchema.properties).map((tool) => tool.name).sort();
     expect(withToken).toEqual(tools.filter((tool) => tool.kind === "write").map((tool) => tool.name).sort());
-    expect(withToken).toHaveLength(9);
+    expect(withToken).toHaveLength(10);
   });
 
   it("closes every input schema", () => {

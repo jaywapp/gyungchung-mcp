@@ -38,6 +38,7 @@ const WRITE_RETRY_MESSAGE =
 
 const SERVER_INSTRUCTIONS =
   "권한은 경충FC 웹과 같다. 로그인한 계정이 웹에서 볼 수 있는 행만 보이고 웹에서 바꿀 수 있는 행만 바꿀 수 있다. " +
+  "표 도구와 전용 도구로 할 수 없는 웹 기능은 functions_list에서 찾아 function_call로 실행한다. " +
   "표를 모르면 tables_list와 table_describe를 먼저 본다. 이름으로 지시받으면 rows_query로 ID를 찾은 뒤 쓰기 도구를 부른다. " +
   "팀, 경기, 우승과 당일 출석 체크는 전용 도구로만 쓴다. 참석 응답은 attendance 표나 attendance_save로 쓴다. 경기 기록을 저장하기 전에는 event_game_state로 현재 상태를 읽는다. " +
   "미리보기가 돌아오면 사용자에게 보여 주고 승인을 받은 뒤, 미리보기 때의 requestId와 인자에 confirmToken만 더해 다시 보낸다. " +
