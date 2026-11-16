@@ -80,7 +80,7 @@ DB 함수는 `MCP:<코드>:<한국어 메시지>` 형태로 오류를 던지고 
 
 기존 웹 저장 함수를 그대로 호출한다. 경기 로직은 한 벌이다.
 
-- `attendance_save` → `save_attendance_batch`. `checkInStatus`는 필수(`present`, `late`, `absent`, `null`). `responseStatus`는 출석 행이 아직 없을 때만 적용된다.
+- `attendance_save`. 항목마다 `responseStatus`(`going`, `not_going`, `undecided`)나 `checkInStatus`(`present`, `late`, `absent`, `null`) 중 하나 이상이 필요하다. 참석 여부는 MCP 함수가 `attendance` 표에 직접 저장한다(기존 `save_attendance_batch`는 당일 출석만 기록하고 참석 여부만 따로 저장하지 못한다). 당일 출석은 `save_attendance_batch`로 저장한다.
 - `event_teams_save` → `save_event_teams`.
 - `event_winners_save` → `save_event_winners`. 최대 6명.
 - `event_game_state` → `get_event_team_mode`, `get_event_game_workspace`, `get_event_goals_only`, `get_event_goal_state`.

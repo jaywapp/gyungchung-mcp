@@ -402,7 +402,7 @@
     {
       "name": "attendance_save",
       "title": "출석 저장",
-      "description": "한 일정의 출석을 회원별로 일괄 저장한다. 각 항목에 checkInStatus가 반드시 있어야 한다: present(출석), late(지각), absent(결석), null(출석 기록 지움). responseStatus(참석 응답)는 그 회원의 출석 행이 아직 없을 때만 적용되고 이미 있는 행의 응답은 바꾸지 않는다. 행별 성공·실패가 rows로 돌아오며, 일부만 실패해도 나머지는 저장된다. requestId는 작업마다 새 UUID를 만든다. 오류가 났거나 응답을 받지 못해 같은 작업을 다시 보낼 때는 같은 requestId를 쓴다(이미 저장됐다면 다시 저장하지 않고 첫 결과를 돌려준다).",
+      "description": "한 일정의 참석 여부와 당일 출석을 회원별로 일괄 저장한다. 각 항목에는 responseStatus나 checkInStatus 중 하나 이상이 있어야 한다. responseStatus는 참석 여부다: going(참석), not_going(불참), undecided(미정). 일정 전에 참석 명단을 반영할 때는 responseStatus만 보낸다. checkInStatus는 당일 출석 기록이다: present(출석), late(지각), absent(결석), null(출석 기록 지움). 보내지 않으면 출석 기록은 그대로 둔다. 아직 시작하지 않은 일정에서 참석 여부를 going으로 바꾸면 회원 알림이 발송될 수 있다. 같은 회원을 한 호출에 두 번 넣을 수 없다. 행별 성공·실패가 rows로 돌아오며, 일부만 실패해도 나머지는 저장된다. requestId는 작업마다 새 UUID를 만든다. 오류가 났거나 응답을 받지 못해 같은 작업을 다시 보낼 때는 같은 requestId를 쓴다(이미 저장됐다면 다시 저장하지 않고 첫 결과를 돌려준다).",
       "requiredPermission": "events.manage",
       "rpc": "mcp_admin_attendance_save",
       "kind": "write",
@@ -436,7 +436,12 @@
                   "format": "uuid"
                 },
                 "responseStatus": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": [
+                    "going",
+                    "not_going",
+                    "undecided"
+                  ]
                 },
                 "checkInStatus": {
                   "type": [
@@ -452,8 +457,7 @@
                 }
               },
               "required": [
-                "memberId",
-                "checkInStatus"
+                "memberId"
               ],
               "additionalProperties": false
             }
