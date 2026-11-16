@@ -262,3 +262,15 @@ DB를 먼저 적용해도 기존 웹·앱에는 영향이 없다. 새 표와 새
 - 회원 계정 발급, 비밀번호 초기화
 - 직책 권한, 역할, 시스템 관리자 변경 (추가 인증을 요구하는 고위험 작업)
 - 직책 운영진에게 자기 권한 범위의 범용 쓰기를 여는 방안
+
+## 19. 구현하면서 바뀐 것 (2026-11-16)
+
+초기 분류와 도구 목록(6장, 7장)은 설계 시점의 안이다. 구현 결과는 [specification-v2.md](specification-v2.md)와 `gyungchung` 레포의 마이그레이션이 원본이다.
+
+- **허용 목록은 운영 DB의 실제 표 구조(표 100개)를 읽어 정했다.** 범용 쓰기가 가능한 표는 14개다: `venues`, `notices`, `events`, `event_guest_players`, `fees`, `event_guest_fees`, `guest_players`, `feedback`, `member_season_baselines`, `profiles`, `member_supported_clubs`, `manuals`, `weekly_schedule_settings`, `weekly_schedule_exclusions`. 조회만 가능한 표는 23개다.
+- **`read`로 내린 표.** `member_birthdays`와 `member_occasions`는 리비전 열이 있어 범용 쓰기가 웹의 저장 절차를 깨뜨릴 수 있다. `membership_applications`는 심사 절차가 있다. 셋 다 조회만 연다.
+- **목록에서 뺀 표.** `mixed_zone_entries`(회원이 다른 회원을 평가한 값)는 비밀 응답과 같은 성격이라 넣지 않았다.
+- **도구가 14개가 됐다.** 경기 저장에는 현재 revision과 snapshotId가 필요해서 조회 도구 `event_game_state`를 더했다. 골 단위 기록 함수(`save_event_goal_operation`)가 따로 있어 `event_game_save`에 `target`을 두고 기존 함수 네 개로 그대로 넘긴다.
+- **경기 기록의 변경 전·후는 기존 `private.event_game_changes`에 남는다.** 기존 함수가 자체 이력과 자체 중복 방지를 갖고 있어, MCP 변경 기록에는 호출 사실만 남긴다.
+- **회비 금액은 DB 트리거(`apply_standard_fee_amount`)가 강제한다.** 17장에서 우려한 "범용 쓰기로 회비 금액을 어길 수 있다"는 해당하지 않는다. 일정 종료 시각 같은 다른 규칙도 `events`의 트리거(`protect_event_timing_before_write` 등)가 본다.
+- **DB 테스트는 PGlite로 돌린다.** 이 기기에 Docker가 없다. 팀·경기·확정의 기존 함수는 의존성이 커서 로컬 테스트에서는 스텁이고, 실제 함수와의 결합은 운영 DB의 되돌리는 시험 적용으로 확인한다(`gyungchung` 레포 `apps/web/docs/mcp-admin-write-db-apply.md`).

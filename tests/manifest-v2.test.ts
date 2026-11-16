@@ -100,4 +100,19 @@ describe("MCP tool manifest v2", () => {
       expect(byName(name).description).toContain("한국 시간");
     }
   });
+  it("tells the model how to confirm and retry", () => {
+    for (const name of ["rows_insert", "rows_update", "rows_delete", "event_game_finalize", "fees_charge_monthly"]) {
+      expect(byName(name).description).toContain("미리보기 때의 requestId와 인자를 그대로 두고 confirmToken만 더한다");
+    }
+    for (const tool of tools.filter((item) => item.kind === "write")) {
+      expect(tool.description).toContain("같은 requestId를 쓴다");
+    }
+    expect(byName("rows_update").description).toContain("expected에는 바꾸려는 열의 현재 값");
+  });
+
+  it("keeps schema limits within what the database accepts", () => {
+    const properties = (name: string) => (byName(name).inputSchema as { properties: Record<string, { maxItems?: number }> }).properties;
+    expect(properties("event_winners_save").memberIds.maxItems).toBe(6);
+    expect(properties("rows_query").include.maxItems).toBe(5);
+  });
 });

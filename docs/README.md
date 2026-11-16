@@ -21,6 +21,7 @@
 - [분석](admin-write-v2-analysis.md)
 - [설계](admin-write-v2-design.md)
 - [작업](admin-write-v2-tasks.md)
+- [명세](specification-v2.md)
 
 ## OAuth 서버 복구
 - [분석](oauth-recovery-analysis.md)

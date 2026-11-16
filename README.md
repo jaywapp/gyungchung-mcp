@@ -4,7 +4,7 @@
 
 ## 현재 단계
 
-조회 전용 v1 서버가 구현되어 있습니다. 데이터 변경 도구는 v2에서 별도로 설계합니다.
+조회 도구 11개(v1)와 쓰기 도구 14개(v2)가 구현되어 있습니다. v2는 운영 DB 적용과 배포 전입니다.
 
 ## 기본 원칙
 
@@ -13,6 +13,7 @@
 - MCP와 Admin API는 동일한 인증, 권한, 조회 서비스 계층을 공유합니다.
 - 권한은 토큰의 사용자 제공 메타데이터가 아니라 데이터베이스의 현재 상태로 매 요청마다 계산합니다.
 - v1의 모든 MCP 도구는 읽기 전용입니다.
+- v2의 쓰기는 모두 `public.mcp_admin_*` DB 함수를 거칩니다. 삭제, 여러 행 변경, 경기 확정, 월 회비 일괄 부과는 미리보기 후 승인해야 저장되고, 성공한 변경은 변경 전·후 값과 함께 기록됩니다.
 - 개인정보와 인증정보는 로그에 기록하지 않습니다.
 
 ## 명세 산출물
@@ -20,6 +21,7 @@
 - [제품 및 기술 명세](docs/specification-v1.md)
 - [Admin API OpenAPI 3.1 계약](openapi/admin-api-v1.yaml)
 - [MCP 도구 JSON Schema](spec/mcp-tools-v1.json)
+- [쓰기 도구 명세 v2](docs/specification-v2.md), [v2 도구 JSON Schema](spec/mcp-tools-v2.json)
 
 GitHub 저장소 URL은 소스 배포 원본이며 MCP 실행 주소가 아닙니다. ChatGPT, Codex, Claude에는 배포 후 생성되는 HTTPS `/api/mcp` URL을 연결합니다.
 
