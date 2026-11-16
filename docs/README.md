@@ -17,6 +17,11 @@
 
 - 2026-09-09 성능·안정성: [분석](runtime-resilience-20260909-analysis.md), [설계](runtime-resilience-20260909-design.md), [작업](runtime-resilience-20260909-tasks.md)
 
+## 쓰기 도구 v2
+- [분석](admin-write-v2-analysis.md)
+- [설계](admin-write-v2-design.md)
+- [작업](admin-write-v2-tasks.md)
+
 ## OAuth 서버 복구
 - [분석](oauth-recovery-analysis.md)
 - [설계](oauth-recovery-design.md)
