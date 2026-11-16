@@ -3,7 +3,7 @@
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 - orchestrator: Claude
-- 상태: 사용자 검토 대기
+- 상태: 작업 1~10 완료, 작업 0과 11은 사용자 확인 대기 (2026-11-16)
 - 작성일: 2026-11-16
 
 **Goal:** 시스템 관리자가 AI에게 말로 시켜 허용된 모든 표를 조회·추가·수정·삭제하고, 운영진이 출석·팀·경기·우승·회비 일괄 부과를 전용 도구로 저장할 수 있게 한다.
@@ -495,4 +495,16 @@ DB 작업 2~6은 같은 스키마와 같은 테스트 DB를 쓰므로 순차로 
 
 ## 실행 기록
 
-(작업을 진행하며 상태, 고른 테스트 실행 방법, 검증 결과를 여기에 적는다.)
+| 작업 | 상태 | 결과 |
+|---|---|---|
+| 0 연결 확인 | 대기 | 자동 등록 켜기는 운영 인증 서버의 보안 설정이라 사용자가 한다 |
+| 1 테스트 환경·허용 목록 | 완료 | Docker가 없어 PGlite + node assert 스크립트로 검증한다. 허용 목록은 운영 DB의 실제 표 구조(표 100개)로 정했다 |
+| 2~6 DB 마이그레이션 | 완료 | `node scripts/verify-mcp-admin-database.mjs` 304개 검사 통과 |
+| 7~8 MCP 서버 | 완료 | `npm run check` 테스트 67개 통과 |
+| 9 문서 | 완료 | `specification-v2.md`, 설계 19장, `gyungchung` 레포 `apps/web/docs/mcp-admin-write-db-apply.md` |
+| 10 리뷰 | 완료 | 보안·코드 리뷰 모두 Critical·High 없음. Medium 5건과 Low 일부 수정 |
+| 11 운영 적용·배포 | 대기 | 단계마다 사용자 승인 필요 |
+
+계획과 달라진 것은 설계 문서 19장에 적었다. 요약: 도구 14개(`event_game_state` 추가), pgTAP 대신 PGlite, `mcp_replay(actor, tool, input)`, `mcp_log_change`가 결과 jsonb를 돌려줌, 팀·경기·확정의 기존 함수는 로컬 테스트에서 대역.
+
+미적용 리뷰 항목(사용자 결정과 충돌): OAuth `client_id`를 허용 목록으로 제한하는 것(자동 등록과 충돌), 회원 상태·공지 추가 등 1행 쓰기에도 미리보기를 요구하는 것("한 건은 바로 저장"과 충돌).
