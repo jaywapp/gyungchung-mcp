@@ -148,7 +148,7 @@ export class AdminQueryService {
         .filter((permission): permission is AdminPermission => typeof permission === "string" && allowed.has(permission));
     }
 
-    if (permissions.length === 0) return null;
+    // Members without an officer permission connect too: the table tools follow the web's own rules.
     return new AdminQueryService(supabase, {
       profileId: String(profile.id),
       userId,

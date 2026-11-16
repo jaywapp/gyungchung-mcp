@@ -107,6 +107,9 @@ const v2Tools = v2.tools as unknown as CommandTool[];
 const exposed = (service: ReturnType<typeof operator>) =>
   v2Tools.filter((tool) => shouldExposeCommandTool(service, tool)).map((tool) => tool.name);
 
+// The database applies the web's own row rules to these, so every active member may call them.
+const TABLE_TOOLS = ["rows_delete", "rows_insert", "rows_query", "rows_update", "table_describe", "tables_list"];
+
 describe("shouldExposeCommandTool", () => {
   it("shows every v2 tool to a system admin next to the eleven v1 tools", () => {
     expect(v1.tools).toHaveLength(11);
@@ -121,14 +124,20 @@ describe("shouldExposeCommandTool", () => {
       "event_game_state",
       "event_teams_save",
       "event_winners_save",
+      ...TABLE_TOOLS,
     ]);
   });
 
-  it("shows only the fee charge tool to a fees.manage officer", () => {
-    expect(exposed(operator(false, ["fees.manage"]))).toEqual(["fees_charge_monthly"]);
+  it("adds only the fee charge tool for a fees.manage officer", () => {
+    expect(exposed(operator(false, ["fees.manage"])).sort()).toEqual(["fees_charge_monthly", ...TABLE_TOOLS]);
   });
 
-  it("does not trust permissions for system-admin tools", () => {
-    expect(exposed(operator(false, [...ADMIN_PERMISSIONS])).some((name) => name === "rows_delete")).toBe(false);
+  it("shows the table tools, and nothing else, to a member without officer permissions", () => {
+    expect(exposed(operator(false, [])).sort()).toEqual(TABLE_TOOLS);
+  });
+
+  it("keeps the change history with system administrators whatever permissions are held", () => {
+    expect(exposed(operator(false, [...ADMIN_PERMISSIONS])).some((name) => name === "changes_list")).toBe(false);
+    expect(exposed(operator(true, [])).some((name) => name === "changes_list")).toBe(true);
   });
 });

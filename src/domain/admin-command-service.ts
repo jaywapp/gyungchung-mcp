@@ -62,6 +62,8 @@ interface ExposureContext {
 }
 
 export function shouldExposeCommandTool(service: ExposureContext, tool: CommandTool): boolean {
+  // "member": any active member. The database applies the same row rules as the web.
+  if (tool.requiredPermission === "member") return true;
   if (tool.requiredPermission === "system-admin") return service.operator.isSystemAdmin;
   return service.hasPermission(tool.requiredPermission as AdminPermission);
 }
