@@ -17,7 +17,7 @@
     {
       "name": "tables_list",
       "title": "다룰 수 있는 표 목록",
-      "description": "AI가 조회·수정할 수 있는 표의 이름, 모드(read/write), 설명, 전용 쓰기 도구 이름을 돌려준다. 어느 표를 다룰지 모를 때 가장 먼저 사용한다. 시스템 관리자만 쓸 수 있다. 권한은 경충FC 웹과 같다: 로그인한 계정이 웹에서 다룰 수 있는 표와 행만 다룰 수 있고, 권한이 없으면 FORBIDDEN이나 NOT_FOUND가 돌아온다.",
+      "description": "AI가 조회·수정할 수 있는 표의 이름, 모드(read/write), 설명, 전용 쓰기 도구 이름을 돌려준다. 어느 표를 다룰지 모를 때 가장 먼저 사용한다. 권한은 경충FC 웹과 같다: 로그인한 계정이 웹에서 다룰 수 있는 표와 행만 다룰 수 있고, 권한이 없으면 FORBIDDEN이나 NOT_FOUND가 돌아온다.",
       "requiredPermission": "member",
       "rpc": "mcp_admin_tables_list",
       "kind": "read",
@@ -36,7 +36,7 @@
     {
       "name": "table_describe",
       "title": "표 구조 확인",
-      "description": "한 표의 열 이름과 형식, 쓸 수 있는 열, 민감 열, 기본 키, 다른 표와의 연결, 추가·삭제 가능 여부를 돌려준다. 쓰기 전에 열 이름을 확인할 때 사용한다. 시스템 관리자만 쓸 수 있다. 권한은 경충FC 웹과 같다: 로그인한 계정이 웹에서 다룰 수 있는 표와 행만 다룰 수 있고, 권한이 없으면 FORBIDDEN이나 NOT_FOUND가 돌아온다.",
+      "description": "한 표의 열 이름과 형식, 쓸 수 있는 열, 민감 열, 기본 키, 다른 표와의 연결, 추가·삭제 가능 여부를 돌려준다. 쓰기 전에 열 이름을 확인할 때 사용한다. 권한은 경충FC 웹과 같다: 로그인한 계정이 웹에서 다룰 수 있는 표와 행만 다룰 수 있고, 권한이 없으면 FORBIDDEN이나 NOT_FOUND가 돌아온다.",
       "requiredPermission": "member",
       "rpc": "mcp_admin_table_describe",
       "kind": "read",

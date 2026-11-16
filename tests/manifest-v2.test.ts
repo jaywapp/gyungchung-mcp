@@ -37,6 +37,7 @@ describe("MCP tool manifest v2", () => {
     for (const name of ["tables_list", "table_describe", "rows_query", "rows_insert", "rows_update", "rows_delete", "functions_list", "function_describe", "function_call"]) {
       expect(byName(name).requiredPermission).toBe("member");
       expect(byName(name).description).toContain("권한은 경충FC 웹과 같다");
+      expect(byName(name).description).not.toContain("시스템 관리자만 쓸 수 있다");
     }
     expect(byName("changes_list").requiredPermission).toBe("system-admin");
     for (const name of ["attendance_save", "event_teams_save", "event_game_state", "event_game_save", "event_game_finalize", "event_winners_save"]) {
