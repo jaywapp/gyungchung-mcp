@@ -70,9 +70,10 @@ describe("MCP tool manifest v2", () => {
     }
   });
 
-  it("offers confirmToken only on the five preview tools", () => {
+  it("offers confirmToken on every write tool and on no read tool", () => {
     const withToken = tools.filter((tool) => "confirmToken" in tool.inputSchema.properties).map((tool) => tool.name).sort();
-    expect(withToken).toEqual(["event_game_finalize", "fees_charge_monthly", "rows_delete", "rows_insert", "rows_update"]);
+    expect(withToken).toEqual(tools.filter((tool) => tool.kind === "write").map((tool) => tool.name).sort());
+    expect(withToken).toHaveLength(9);
   });
 
   it("closes every input schema", () => {
@@ -90,8 +91,9 @@ describe("MCP tool manifest v2", () => {
   });
 
   it("states the preview, requestId and timezone rules in descriptions", () => {
-    for (const name of ["rows_insert", "rows_update", "rows_delete", "event_game_finalize", "fees_charge_monthly"]) {
-      expect(byName(name).description).toContain("confirmToken 없이 호출하면 저장하지 않고 미리보기를 돌려준다");
+    for (const tool of tools.filter((item) => item.kind === "write")) {
+      expect(tool.description).toContain("confirmToken 없이 호출하면 저장하지 않고 미리보기를 돌려준다");
+      expect(Object.keys((tool.inputSchema as { properties: object }).properties)).toContain("confirmToken");
     }
     for (const tool of tools.filter((item) => item.kind === "write")) {
       expect(tool.description).toContain("requestId는 작업마다 새 UUID를 만든다");
@@ -101,13 +103,13 @@ describe("MCP tool manifest v2", () => {
     }
   });
   it("tells the model how to confirm and retry", () => {
-    for (const name of ["rows_insert", "rows_update", "rows_delete", "event_game_finalize", "fees_charge_monthly"]) {
-      expect(byName(name).description).toContain("미리보기 때의 requestId와 인자를 그대로 두고 confirmToken만 더한다");
+    for (const tool of tools.filter((item) => item.kind === "write")) {
+      expect(tool.description).toContain("미리보기 때의 requestId와 인자를 그대로 두고 confirmToken만 더한다");
     }
     for (const tool of tools.filter((item) => item.kind === "write")) {
       expect(tool.description).toContain("같은 requestId를 쓴다");
     }
-    expect(byName("rows_update").description).toContain("expected에는 바꾸려는 열의 현재 값");
+    expect(byName("rows_update").description).not.toContain("expected");
   });
 
   it("keeps schema limits within what the database accepts", () => {

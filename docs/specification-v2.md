@@ -14,16 +14,16 @@ v1의 조회 도구 11개는 그대로다. v2는 도구 14개를 더한다. MCP 
 | `tables_list` | 시스템 관리자 | 조회 | — |
 | `table_describe` | 시스템 관리자 | 조회 | — |
 | `rows_query` | 시스템 관리자 | 조회 | — |
-| `rows_insert` | 시스템 관리자 | 쓰기 | 1행은 바로, 2행 이상은 미리보기 |
-| `rows_update` | 시스템 관리자 | 쓰기 | 1행은 `expected`와 함께 바로, 2행 이상은 미리보기 |
+| `rows_insert` | 시스템 관리자 | 쓰기 | 항상 미리보기 |
+| `rows_update` | 시스템 관리자 | 쓰기 | 항상 미리보기 |
 | `rows_delete` | 시스템 관리자 | 쓰기 | 항상 미리보기 |
 | `changes_list` | 시스템 관리자 | 조회 | — |
-| `attendance_save` | `events.manage` | 쓰기 | 바로 |
-| `event_teams_save` | `events.manage` | 쓰기 | 바로 |
+| `attendance_save` | `events.manage` | 쓰기 | 항상 미리보기 |
+| `event_teams_save` | `events.manage` | 쓰기 | 항상 미리보기 |
 | `event_game_state` | `events.manage` | 조회 | — |
-| `event_game_save` | `events.manage` | 쓰기 | 바로 |
+| `event_game_save` | `events.manage` | 쓰기 | 항상 미리보기 |
 | `event_game_finalize` | `events.manage` | 쓰기 | 항상 미리보기 |
-| `event_winners_save` | `events.manage` | 쓰기 | 바로 |
+| `event_winners_save` | `events.manage` | 쓰기 | 항상 미리보기 |
 | `fees_charge_monthly` | `fees.manage` | 쓰기 | 항상 미리보기 |
 
 권한이 없는 도구는 `tools/list`에 보이지 않는다. 직접 호출해도 DB 함수가 거부한다. 웹 세션 토큰(OAuth `client_id`가 없는 토큰)으로는 어떤 `mcp_admin_*` 함수도 쓸 수 없다.
@@ -37,6 +37,8 @@ v1의 조회 도구 11개는 그대로다. v2는 도구 14개를 더한다. MCP 
 ```
 
 ## 미리보기 절차
+
+모든 쓰기 도구는 1건이어도 미리보기를 거친다(2026-11-16 사용자 결정, 마이그레이션 `20261116100000_mcp_admin_always_preview`). `rows_update`의 `expected`는 없어졌고, 미리보기 때 대상 행 전체의 해시가 그 역할을 한다.
 
 1. `confirmToken` 없이 호출하면 저장하지 않고 미리보기와 토큰을 돌려준다. 토큰은 10분 뒤 만료되고 한 번만 쓸 수 있다.
 2. AI가 미리보기를 운영자에게 보여 주고 승인을 받는다.

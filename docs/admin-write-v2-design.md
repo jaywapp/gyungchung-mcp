@@ -274,3 +274,9 @@ DB를 먼저 적용해도 기존 웹·앱에는 영향이 없다. 새 표와 새
 - **경기 기록의 변경 전·후는 기존 `private.event_game_changes`에 남는다.** 기존 함수가 자체 이력과 자체 중복 방지를 갖고 있어, MCP 변경 기록에는 호출 사실만 남긴다.
 - **회비 금액은 DB 트리거(`apply_standard_fee_amount`)가 강제한다.** 17장에서 우려한 "범용 쓰기로 회비 금액을 어길 수 있다"는 해당하지 않는다. 일정 종료 시각 같은 다른 규칙도 `events`의 트리거(`protect_event_timing_before_write` 등)가 본다.
 - **DB 테스트는 PGlite로 돌린다.** 이 기기에 Docker가 없다. 팀·경기·확정의 기존 함수는 의존성이 커서 로컬 테스트에서는 스텁이고, 실제 함수와의 결합은 운영 DB의 되돌리는 시험 적용으로 확인한다(`gyungchung` 레포 `apps/web/docs/mcp-admin-write-db-apply.md`).
+
+## 20. 운영 적용 뒤 바뀐 것 (2026-11-16)
+
+- **모든 쓰기는 1건이어도 미리보기를 거친다(사용자 결정).** 앞의 "삭제·일괄 변경·경기 확정만 미리보기" 결정을 대체한다. `rows_insert`, `rows_update`, `attendance_save`, `event_teams_save`, `event_game_save`, `event_winners_save`가 대상이고, DB 마이그레이션 `20261116100000_mcp_admin_always_preview`로 바꾼다. `rows_update`의 `expected`는 없앴다.
+- **`attendance_save`가 참석 여부를 직접 저장한다.** 기존 `save_attendance_batch`는 당일 출석 전용이라 참석 여부만 따로 저장하지 못했다. 22일 일정 참석 명단을 반영하다 발견했다.
+- 경기 기록(`event_game_save`)도 호출마다 미리보기와 승인이 필요하다. 경기 중 실시간 기록에는 번거로울 수 있다.
