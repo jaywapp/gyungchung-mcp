@@ -112,7 +112,7 @@ describe("MCP tool manifest v2", () => {
 
   it("keeps schema limits within what the database accepts", () => {
     const properties = (name: string) => (byName(name).inputSchema as { properties: Record<string, { maxItems?: number }> }).properties;
-    expect(properties("event_winners_save").memberIds.maxItems).toBe(6);
-    expect(properties("rows_query").include.maxItems).toBe(5);
+    expect(properties("event_winners_save").memberIds?.maxItems).toBe(6);
+    expect(properties("rows_query").include?.maxItems).toBe(5);
   });
 });
