@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root { --navy:#0b1f33; --pitch:#124a33; --lime:#b8f27c; --ink:#fff; --soft:#a9b8c7; --line:rgba(255,255,255,.14); --ease:cubic-bezier(.16,1,.3,1); }
+* { box-sizing:border-box; margin:0; }
+html,body { width:1280px; height:720px; overflow:hidden; background:var(--navy); color:var(--ink); font-family:"Pretendard Variable",Pretendard,"Malgun Gothic",sans-serif; word-break:keep-all; }
+.stage { position:absolute; inset:0; }
+.pitch { position:absolute; right:-180px; top:-180px; width:620px; height:620px; border-radius:50%; border:2px solid rgba(255,255,255,.05); }
+.pitch::after { content:""; position:absolute; inset:150px; border-radius:50%; border:2px solid rgba(255,255,255,.05); }
+.scene { position:absolute; inset:0 0 150px 0; padding:64px 88px 0; opacity:0; visibility:hidden; transition:opacity .45s var(--ease); display:flex; flex-direction:column; justify-content:center; }
+.scene.on { opacity:1; visibility:visible; }
+.scene > * , .scene .it { opacity:0; transform:translateY(22px); transition:opacity .6s var(--ease), transform .6s var(--ease); }
+.scene.on > *, .scene.on .it { opacity:1; transform:none; }
+.scene.on .d1 { transition-delay:.5s } .scene.on .d2 { transition-delay:1.6s } .scene.on .d3 { transition-delay:2.9s } .scene.on .d4 { transition-delay:4.4s } .scene.on .d5 { transition-delay:6s } .scene.on .d6 { transition-delay:7.6s }
+.label { font-size:26px; font-weight:700; color:var(--lime); margin-bottom:18px; }
+h1 { font-size:70px; line-height:1.18; font-weight:800; letter-spacing:-.02em; }
+h2 { font-size:54px; line-height:1.22; font-weight:800; letter-spacing:-.02em; }
+.sub { font-size:30px; color:var(--soft); margin-top:22px; line-height:1.5; }
+.logo { height:54px; width:auto; margin-bottom:40px; align-self:flex-start; }
+.rows { margin-top:38px; display:grid; gap:16px; }
+.row { display:flex; align-items:center; gap:22px; font-size:34px; font-weight:650; padding:20px 28px; border-radius:16px; background:rgba(255,255,255,.07); width:fit-content; min-width:640px; }
+.num { width:48px; height:48px; flex:none; display:grid; place-items:center; border-radius:50%; background:var(--lime); color:var(--navy); font-weight:800; font-size:26px; }
+.row small { display:block; font-size:22px; font-weight:500; color:var(--soft); margin-top:2px; }
+.addr { margin-top:40px; display:flex; gap:18px; align-items:stretch; }
+.addr code { font-family:Consolas,monospace; font-size:32px; padding:24px 30px; border-radius:14px; background:rgba(0,0,0,.32); }
+.btn { display:grid; place-items:center; padding:0 38px; border-radius:999px; background:var(--lime); color:var(--navy); font-size:30px; font-weight:800; }
+.scene.on .press { animation:press .5s 3.2s var(--ease) both; }
+@keyframes press { 0%{transform:scale(1)} 40%{transform:scale(.93)} 100%{transform:scale(1)} }
+.chips { margin-top:40px; display:flex; flex-wrap:wrap; align-items:center; gap:16px 14px; }
+.chip { font-size:32px; font-weight:700; padding:16px 26px; border-radius:14px; background:#fff; color:var(--navy); }
+.arrow { font-size:34px; color:var(--soft); font-weight:700; }
+.fields { margin-top:36px; display:grid; gap:14px; width:860px; }
+.field { display:grid; grid-template-columns:150px 1fr; align-items:center; gap:20px; font-size:30px; padding:18px 26px; border-radius:14px; background:rgba(255,255,255,.07); }
+.field b { color:var(--soft); font-weight:600; }
+.field code { font-family:Consolas,monospace; font-size:27px; }
+.split { display:grid; grid-template-columns:1fr 380px; gap:56px; align-items:center; }
+.split img { width:380px; border-radius:16px; box-shadow:0 24px 60px -20px rgba(0,0,0,.7); }
+.bubbles { margin-top:36px; display:grid; gap:16px; }
+.bubble { font-size:34px; font-weight:600; padding:18px 30px; border-radius:26px 26px 26px 6px; background:rgba(255,255,255,.1); width:fit-content; }
+.bubble.me { background:var(--lime); color:var(--navy); }
+.flow { margin-top:40px; display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+.flow div { padding:26px 28px; border-radius:16px; background:rgba(255,255,255,.07); font-size:27px; line-height:1.45; color:var(--soft); }
+.flow b { display:block; font-size:32px; color:var(--lime); margin-bottom:8px; }
+.url { margin-top:36px; font-family:Consolas,monospace; font-size:34px; color:var(--lime); }
+.caption { position:absolute; left:88px; right:88px; bottom:46px; height:96px; display:flex; align-items:center; font-size:29px; line-height:1.45; font-weight:500; color:#fff; border-top:1px solid var(--line); padding-top:18px; }
+.bar { position:absolute; left:0; bottom:0; height:8px; background:var(--lime); width:0; }
+</style></head>
+<body><div class="stage">
+<div class="pitch"></div>
+<section class="scene" id="title"><img class="logo" src="LOGO" alt=""><h1>AI에게 말로 시키는<br>경충 관리</h1><p class="sub it d2">한 번 연결하면 끝. 3분이면 됩니다.</p></section>
+<section class="scene" id="prep"><h2>준비할 것 세 가지</h2><div class="rows">
+ <div class="row it d2"><span class="num">1</span><span>컴퓨터의 Chrome 브라우저</span></div>
+ <div class="row it d3"><span class="num">2</span><span>경충 전화번호와 비밀번호<small>웹, 앱 로그인과 같습니다</small></span></div>
+ <div class="row it d5"><span class="num">3</span><span>ChatGPT 또는 Claude 계정</span></div></div></section>
+<section class="scene" id="address"><p class="label">연결 주소</p><h2>먼저 주소를 복사합니다</h2><div class="addr it d1"><code>https://gyungchung-mcp.vercel.app/api/mcp</code><span class="btn press">주소 복사</span></div></section>
+<section class="scene" id="chatgpt1"><p class="label">ChatGPT에서</p><h2>새 연결을 만듭니다</h2><div class="chips">
+ <span class="chip it d1">chatgpt.com/plugins</span><span class="arrow it d2">→</span><span class="chip it d2">+</span><span class="arrow it d3">→</span><span class="chip it d3">Add custom MCP server</span></div></section>
+<section class="scene" id="chatgpt2"><p class="label">ChatGPT에서</p><h2>이름과 주소를 적습니다</h2><div class="fields">
+ <div class="field it d1"><b>이름</b><span>경충</span></div>
+ <div class="field it d2"><b>주소</b><code>https://gyungchung-mcp.vercel.app/api/mcp</code></div></div>
+ <div class="chips it d4" style="margin-top:26px"><span class="chip" style="background:var(--lime)">Create as a plugin</span></div></section>
+<section class="scene" id="claude"><p class="label">Claude에서</p><h2>커넥터를 추가합니다</h2><div class="chips">
+ <span class="chip it d1">Customize</span><span class="arrow it d2">→</span><span class="chip it d2">Connectors</span><span class="arrow it d3">→</span><span class="chip it d3">+ Add</span><span class="arrow it d4">→</span><span class="chip it d4" style="background:var(--lime)">주소 붙여넣기</span></div></section>
+<section class="scene" id="login"><div class="split"><div><p class="label">경충 로그인</p><h2>웹과 같은 번호로 로그인하고 승인</h2><div class="rows" style="margin-top:30px">
+ <div class="row it d2" style="min-width:0"><span class="num">1</span><span>전화번호, 비밀번호 입력</span></div>
+ <div class="row it d4" style="min-width:0"><span class="num">2</span><span>연결 승인 누르기</span></div>
+ <div class="row it d6" style="min-width:0;background:rgba(184,242,124,.16)"><span>뜬 창 안에서 끝까지</span></div></div></div>
+ <img src="SHOT" alt=""></div></section>
+<section class="scene" id="talk"><h2>이제 말로 시켜 보세요</h2><div class="bubbles">
+ <div class="bubble me it d3">이번 주 참석자 명단 알려 줘</div>
+ <div class="bubble it d5">11월 22일 정기 풋살, 참석 12명입니다.</div></div></section>
+<section class="scene" id="preview"><h2>바로 저장하지 않습니다</h2><div class="flow">
+ <div class="it d1"><b>1. 말로 시킨다</b>바꿀 것을 적습니다</div>
+ <div class="it d3"><b>2. 미리 보여 준다</b>아직 저장 전입니다</div>
+ <div class="it d4"><b>3. 좋다고 하면 저장</b>"응, 저장해"</div></div></section>
+<section class="scene" id="help"><p class="label">오류가 나면</p><h2>Chrome 시크릿 창에서<br>다시 연결해 보세요</h2><p class="url it d3">gyungchung-mcp.vercel.app/mcp-guide</p></section>
+<p class="caption" id="caption"></p><div class="bar" id="bar"></div>
+</div>
+<script>
+const T = TIMELINE;
+const total = T[T.length - 1].end;
+window.__start = null;
+function run() {
+  window.__start = performance.now();
+  window.__startEpoch = Date.now();
+  function tick() {
+    const t = (performance.now() - window.__start) / 1000;
+    const cur = T.find(s => t < s.end) || T[T.length - 1];
+    for (const s of T) document.getElementById(s.id).classList.toggle("on", s === cur && t < total);
+    const cue = cur.cues.find(c => t >= c.start && t < c.end);
+    document.getElementById("caption").textContent = cue ? cue.text : "";
+    document.getElementById("bar").style.width = Math.min(100, t / total * 100) + "%";
+    if (t < total + 0.5) requestAnimationFrame(tick); else window.__done = true;
+  }
+  tick();
+}
+document.fonts.ready.then(() => setTimeout(run, 400));
+</script></body></html>

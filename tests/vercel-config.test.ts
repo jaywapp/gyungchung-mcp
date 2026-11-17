@@ -21,6 +21,14 @@ describe("Vercel routing", () => {
     ]));
   });
 
+  it("serves the connection guide at /mcp-guide", () => {
+    expect(config.rewrites).toContainEqual({ source: "/mcp-guide", destination: "/mcp-guide/index.html" });
+    const guide = readFileSync(new URL("../public/mcp-guide/index.html", import.meta.url), "utf8");
+    expect(guide).toContain("https://gyungchung-mcp.vercel.app/api/mcp");
+    expect(guide).toContain("/mcp-guide/guide.mp4");
+    expect(guide).not.toMatch(/[—–]/);
+  });
+
   it("uses explicit admin routes instead of an invalid query catch-all", () => {
     expect(config.rewrites.some((rewrite) => rewrite.destination.includes(":path*"))).toBe(false);
     expect(config.rewrites.map((rewrite) => rewrite.source)).toEqual(expect.arrayContaining([
