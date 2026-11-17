@@ -397,7 +397,7 @@ export class AdminQueryService {
     if (!eventId) throw new AdminError("INVALID_ARGUMENT", "eventId가 필요합니다.", 400);
     const result = await this.supabase
       .from("events")
-      .select("id, title, starts_at, venue_id, venue, address, note, capacity, is_competitive, team_mode, attendance(event_id, member_id, status, check_in_status, checked_in_at, profiles(name, position, jersey_number)), event_guest_players(event_id, guest_player_id, guest_name, guest_position, created_at), event_teams(id, event_id, team_number, team_name, score, generation_mode, event_team_members(id, profile_id, guest_player_id, participant_name, participant_position, goals, rating)), event_matches(id, match_number, team_a_id, team_b_id, team_a_score, team_b_score, event_match_players(id, team_id, profile_id, guest_player_id, player_name), event_match_scorers(id, team_id, profile_id, guest_player_id, scorer_name, goals))")
+      .select("id, title, starts_at, venue_id, venue, address, note, capacity, is_competitive, team_mode, attendance(event_id, member_id, status, check_in_status, checked_in_at, profiles!attendance_member_id_fkey(name, position, jersey_number)), event_guest_players(event_id, guest_player_id, guest_name, guest_position, created_at), event_teams(id, event_id, team_number, team_name, score, generation_mode, event_team_members(id, profile_id, guest_player_id, participant_name, participant_position, goals, rating)), event_matches(id, match_number, team_a_id, team_b_id, team_a_score, team_b_score, event_match_players(id, team_id, profile_id, guest_player_id, player_name), event_match_scorers(id, team_id, profile_id, guest_player_id, scorer_name, goals))")
       .eq("id", eventId)
       .single();
     assertNoError(result.error, true);
